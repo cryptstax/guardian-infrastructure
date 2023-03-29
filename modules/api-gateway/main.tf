@@ -28,10 +28,10 @@ resource "docker_container" "api_gateway" {
     external = var.api_gateway_expose_port
   }
   depends_on = [
-    var.mongo_dependency,
-    var.message_broker_dependency,
-    var.guardian_service_dependency,
     var.auth_service_dependency,
-    var.logger_service_dependency
+    var.guardian_service_dependency,
+    var.logger_service_dependency,
+    var.message_broker_dependency,
+    var.mongo_dependency
   ]
 }

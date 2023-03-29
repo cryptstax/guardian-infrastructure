@@ -42,11 +42,11 @@ module "api-gateway" {
   }
 
   # Add the "depends_on" output variables from other modules as inputs
-  mongo_dependency            = module.mongo.container_name
+  auth_service_dependency     = module.auth-service.container_name
+  guardian_service_dependency = module.guardian-service.container_name
   logger_service_dependency   = module.logger-service.container_name
   message_broker_dependency   = module.message-broker.container_name
-  guardian_service_dependency = module.guardian-service.container_name
-  auth_service_dependency     = module.auth-service.container_name
+  mongo_dependency            = module.mongo.container_name
 }
 
 module "auth-service" {
@@ -122,7 +122,7 @@ module "mongo-express" {
 
   mongo_express_image       = "mongo-express:1.0.0-alpha.4"
   mongo_expose_port         = 27017
-  mongo_container_name      = module.mongo.mongo_container_name
+  mongo_container_name      = module.mongo.container_name
   mongo_express_expose_port = 8081
   mongo_express_baseurl     = "/mongo-admin"
 

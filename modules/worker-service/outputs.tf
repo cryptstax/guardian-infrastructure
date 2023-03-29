@@ -1,7 +1,8 @@
-output "worker-service_container_name" {
-  value = docker_container.worker-service.name
+output "container_id" {
+  value = docker_container.worker_service.id
 }
 
-output "worker-service_container_id" {
-  value = docker_container.worker-service.id
+output "container_name" {
+  value = docker_container.worker_service.name
 }
+
