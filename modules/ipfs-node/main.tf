@@ -12,8 +12,8 @@ provider "docker" {
 }
 
 locals {
-  ipfs_data_path    = "${abspath("${path.root}/${var.ipfs_data_path}")}"
-  ipfs_staging_path = "${abspath("${path.root}/${var.ipfs_staging_path}")}"
+  ipfs_data_path    = abspath("${path.root}/${var.ipfs_data_path}")
+  ipfs_staging_path = abspath("${path.root}/${var.ipfs_staging_path}")
 }
 
 resource "docker_image" "ipfs_node" {

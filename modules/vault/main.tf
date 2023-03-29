@@ -12,8 +12,8 @@ provider "docker" {
 }
 
 locals {
-  vault_file_path   = "${abspath("${path.root}/${var.vault_file_path}")}"
-  vault_config_path = "${abspath("${path.root}/${var.vault_config_path}")}"
+  vault_file_path   = abspath("${path.root}/${var.vault_file_path}")
+  vault_config_path = abspath("${path.root}/${var.vault_config_path}")
 }
 
 resource "docker_image" "vault" {
