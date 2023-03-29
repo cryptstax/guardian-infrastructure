@@ -40,6 +40,13 @@ module "api-gateway" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+
+  # Add the "depends_on" output variables from other modules as inputs
+  mongo_dependency            = module.mongo.container_name
+  logger_service_dependency   = module.logger-service.container_name
+  message_broker_dependency   = module.message-broker.container_name
+  guardian_service_dependency = module.guardian-service.container_name
+  auth_service_dependency     = module.auth-service.container_name
 }
 
 module "auth-service" {

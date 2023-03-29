@@ -1,3 +1,7 @@
-output "logger_service_container_name" {
+output "container_id" {
+  value = docker_container.logger_service.id
+}
+
+output "container_name" {
   value = docker_container.logger_service.name
 }
