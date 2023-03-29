@@ -94,6 +94,9 @@ module "ipfs-node" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+
+  ipfs_data_path    = "${path.root}/runtime-data/ipfs/data"
+  ipfs_staging_path = "${path.root}/runtime-data/ipfs/staging"
 }
 
 module "logger-service" {
@@ -106,6 +109,8 @@ module "logger-service" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  message_broker_dependency = module.message-broker.container_name
 }
 
 module "message-broker" {
@@ -122,7 +127,6 @@ module "mongo" {
   source = "./modules/mongo"
 
   mongo_image       = "mongo:6.0.3"
-  mongo_command     = "--setParameter allowDiskUseByDefault=true"
   mongo_expose_port = 27017
 
   providers = {
@@ -142,6 +146,8 @@ module "mongo-express" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  mongo_dependency = module.mongo.container_name
 }
 
 module "mrv-sender" {
@@ -166,6 +172,11 @@ module "policy-service" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  auth_service_dependency   = module.auth-service.container_name
+  logger_service_dependency = module.logger-service.container_name
+  message_broker_dependency = module.message-broker.container_name
+  mongo_dependency          = module.mongo.container_name
 }
 
 module "topic_viewer" {
@@ -190,6 +201,9 @@ module "vault" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+
+  vault_file_path   = "${path.root}/file"
+  vault_config_path = "${path.root}/config"
 }
 
 module "web-proxy" {
@@ -201,6 +215,13 @@ module "web-proxy" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  api_docs_dependency         = module.api-docs.container_name
+  api_gateway_dependency      = module.api-gateway.container_name
+  auth_service_dependency     = module.auth-service.container_name
+  guardian_service_dependency = module.guardian-service.container_name
+  mongo-express_dependency    = module.mongo-express.container_name
+  mrv-sender_dependency       = module.mrv-sender.container_name
 }
 
 module "worker-service-1" {
@@ -213,6 +234,9 @@ module "worker-service-1" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  auth_service_dependency = module.auth-service.container_name
+  ipfs_node_dependency    = module.ipfs-node.container_name
 }
 
 module "worker-service-2" {
@@ -225,4 +249,7 @@ module "worker-service-2" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  auth_service_dependency = module.auth-service.container_name
+  ipfs_node_dependency    = module.ipfs-node.container_name
 }

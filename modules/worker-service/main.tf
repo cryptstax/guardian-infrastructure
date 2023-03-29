@@ -27,9 +27,8 @@ resource "docker_container" "worker-service" {
   env = [
     "SERVICE_CHANNEL=${var.service_channel}",
   ]
-
   depends_on = [
-    docker_container.auth_service,
-    docker_container.ipfs_node
+    var.auth_service_dependency,
+    var.ipfs_node_dependency
   ]
 }

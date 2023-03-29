@@ -22,3 +22,8 @@ variable "mongo_express_baseurl" {
   description = "Base URL for the mongo-express service"
   type        = string
 }
+
+variable "mongo_dependency" {
+  description = "This depends_on the container for the mongo service"
+  type        = string
+}

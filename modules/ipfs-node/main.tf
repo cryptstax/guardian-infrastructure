@@ -11,6 +11,11 @@ provider "docker" {
   alias = "kreuzwerker"
 }
 
+locals {
+  ipfs_data_path    = "${abspath("${path.root}/${var.ipfs_data_path}")}"
+  ipfs_staging_path = "${abspath("${path.root}/${var.ipfs_staging_path}")}"
+}
+
 resource "docker_image" "ipfs_node" {
   name = var.ipfs_node_image
 }
@@ -43,16 +48,15 @@ resource "docker_container" "ipfs_node" {
     internal = 8081
     external = 8081
   }
-  
-  volumes {
-    container_path = var.docker_volumes[0].container_path
-    host_path      = var.docker_volumes[0].host_path
-    read_only      = false
-  }
 
   volumes {
-    container_path = var.docker_volumes[1].container_path
-    host_path      = var.docker_volumes[1].host_path
+    host_path      = local.ipfs_data_path
+    container_path = "/data/ipfs"
+    read_only      = false
+  }
+  volumes {
+    host_path      = local.ipfs_staging_path
+    container_path = "/export"
     read_only      = false
   }
 }

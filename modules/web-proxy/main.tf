@@ -30,11 +30,11 @@ resource "docker_container" "web-proxy" {
   }
 
   depends_on = [
-    docker_container.auth_service,
-    docker_container.api_docs,
-    docker_container.api_gateway,
-    docker_container.guardian_service,
-    docker_container.mongo-express,
-    docker_container.mrv-sender
+    var.api_docs_dependency,
+    var.api_gateway_dependency,
+    var.auth_service_dependency,
+    var.guardian_service_dependency,
+    var.mongo-express_dependency,
+    var.mrv-sender_dependency
   ]
 }

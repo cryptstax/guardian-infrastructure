@@ -28,9 +28,9 @@ resource "docker_container" "policy_service" {
     external = 9200
   }
   depends_on = [
-    docker_container.mongo,
-    docker_container.message_broker,
-    docker_container.auth_service,
-    docker_container.logger_service
+    var.auth_service_dependency,
+    var.logger_service_dependency,
+    var.message_broker_dependency,
+    var.mongo_dependency
   ]
 }

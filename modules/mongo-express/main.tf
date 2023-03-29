@@ -19,13 +19,14 @@ resource "docker_container" "mongo-express" {
   image   = docker_image.mongo-express.name
   name    = "mongo-express"
   restart = "always"
-  expose {
+  ports {
     internal = var.mongo_express_expose_port
+    external = var.mongo_express_expose_port
   }
   env = [
     "ME_CONFIG_MONGODB_SERVER=${var.mongo_container_name}",
     "ME_CONFIG_MONGODB_PORT=${var.mongo_expose_port}",
     "ME_CONFIG_SITE_BASEURL=${var.mongo_express_baseurl}"
   ]
-  depends_on = [docker_container.mongo]
+  depends_on = [var.mongo_dependency]
 }

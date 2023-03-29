@@ -12,3 +12,8 @@ variable "logger_service_dockerfile" {
   description = "Dockerfile for the logger-service"
   type        = string
 }
+
+variable "message_broker_dependency" {
+  description = "This depends_on the container for the message-broker service"
+  type        = string
+}

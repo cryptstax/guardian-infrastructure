@@ -25,3 +25,33 @@ variable "web_proxy_external_port" {
   description = "The external port for the web-proxy service."
   default     = 3000
 }
+
+variable "api_docs_dependency" {
+  description = "This depends_on the container for the api-docs service"
+  type        = string
+}
+
+variable "api_gateway_dependency" {
+  description = "This depends_on the container for the api-gateway service"
+  type        = string
+}
+
+variable "auth_service_dependency" {
+  description = "This depends_on the container for the auth-service"
+  type        = string
+}
+
+variable "guardian_service_dependency" {
+  description = "This depends_on the container for the guardian-service"
+  type        = string
+}
+
+variable "mongo-express_dependency" {
+  description = "This depends_on the container for the mongo-express service"
+  type        = string
+}
+
+variable "mrv-sender_dependency" {
+  description = "This depends_on the container for the mrv-sender service"
+  type        = string
+}

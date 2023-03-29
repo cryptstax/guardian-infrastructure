@@ -28,6 +28,6 @@ resource "docker_container" "logger_service" {
     external = 9000
   }
   depends_on = [
-    docker_container.message_broker
+    var.message_broker_dependency
   ]
 }

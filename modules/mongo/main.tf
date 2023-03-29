@@ -18,9 +18,10 @@ resource "docker_image" "mongo" {
 resource "docker_container" "mongo" {
   image   = docker_image.mongo.name
   name    = "mongo"
-  command = var.mongo_command
+  command = ["--setParameter", "allowDiskUseByDefault=true"]
   restart = "always"
-  expose {
+  ports {
     internal = var.mongo_expose_port
+    external = var.mongo_expose_port
   }
 }
