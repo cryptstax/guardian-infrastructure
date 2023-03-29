@@ -43,14 +43,16 @@ resource "docker_container" "ipfs_node" {
     internal = 8081
     external = 8081
   }
+  
   volumes {
-    container_path = "/export"
-    host_path      = "./runtime-data/ipfs/staging"
+    container_path = var.docker_volumes[0].container_path
+    host_path      = var.docker_volumes[0].host_path
     read_only      = false
   }
+
   volumes {
-    container_path = "/data/ipfs"
-    host_path      = "./runtime-data/ipfs/data"
+    container_path = var.docker_volumes[1].container_path
+    host_path      = var.docker_volumes[1].host_path
     read_only      = false
   }
 }

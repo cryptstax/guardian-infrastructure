@@ -24,9 +24,9 @@ resource "docker_container" "auth_service" {
   name    = "auth-service"
   restart = "always"
   depends_on = [
+    var.logger_service_dependency,
     var.message_broker_dependency,
     var.mongo_dependency,
-    var.logger_service_dependency,
     var.vault_dependency
   ]
 }

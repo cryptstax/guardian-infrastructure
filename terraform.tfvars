@@ -72,13 +72,13 @@ docker_environment = {
 docker_volumes = [
   {
     service_name   = "ipfs-node"
-    host_path      = "./runtime-data/ipfs/staging"
+    host_path      = "${abspath("./runtime-data/ipfs/data")}"
     container_path = "/export"
     access_mode    = "rw"
   },
   {
     service_name   = "ipfs-node"
-    host_path      = "./runtime-data/ipfs/data"
+    host_path      = "${abspath("./runtime-data/ipfs/staging")}"
     container_path = "/data/ipfs"
     access_mode    = "rw"
   },

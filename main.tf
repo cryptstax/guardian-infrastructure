@@ -59,6 +59,11 @@ module "auth-service" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  logger_service_dependency = module.logger-service.container_name
+  message_broker_dependency = module.message-broker.container_name
+  mongo_dependency          = module.mongo.container_name
+  vault_dependency          = module.vault.container_name
 }
 
 module "guardian-service" {
@@ -71,6 +76,14 @@ module "guardian-service" {
   providers = {
     docker.kreuzwerker = docker.kreuzwerker
   }
+  # Add the "depends_on" output variables from other modules as inputs
+  auth_service_dependency     = module.auth-service.container_name
+  logger_service_dependency   = module.logger-service.container_name
+  message_broker_dependency   = module.message-broker.container_name
+  mongo_dependency            = module.mongo.container_name
+  policy_service_dependency   = module.policy-service.container_name
+  worker_service_1_dependency = module.worker-service-1.container_name
+  worker_service_2_dependency = module.worker-service-2.container_name
 }
 
 module "ipfs-node" {

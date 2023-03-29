@@ -24,12 +24,12 @@ resource "docker_container" "guardian_service" {
   name    = "guardian-service"
   restart = "always"
   depends_on = [
-    docker_container.mongo,
-    docker_container.message_broker,
-    docker_container.auth_service,
-    docker_container.logger_service,
-    docker_container.worker_service_1,
-    docker_container.worker_service_2,
-    docker_container.policy_service
+    var.auth_service_dependency,
+    var.logger_service_dependency,
+    var.message_broker_dependency,
+    var.mongo_dependency,
+    var.policy_service_dependency,
+    var.worker_service_1_dependency,
+    var.worker_service_2_dependency
   ]
 }
