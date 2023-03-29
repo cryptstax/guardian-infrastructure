@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2" # Replace this with the desired version
+    }
+  }
+}
+
+provider "docker" {
+  alias = "kreuzwerker"
+}
+
 resource "docker_image" "api_gateway" {
   name = var.api_gateway_image
   build {
@@ -7,14 +20,18 @@ resource "docker_image" "api_gateway" {
 }
 
 resource "docker_container" "api_gateway" {
-  name  = var.api_gateway_image
-  image = docker_image.api_gateway.latest
-
+  image   = docker_image.api_gateway.name
+  name    = "api-gateway"
+  restart = "always"
   ports {
-    internal = var.api_gateway_exposed_port
+    internal = var.api_gateway_expose_port
+    external = var.api_gateway_expose_port
   }
-
-  networks_advanced {
-    name = var.app_network_name
-  }
+  depends_on = [
+    docker_container.mongo,
+    docker_container.message_broker,
+    docker_container.guardian_service,
+    docker_container.auth_service,
+    docker_container.logger_service
+  ]
 }

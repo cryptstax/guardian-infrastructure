@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2" # Replace this with the desired version
+    }
+  }
+}
+
+provider "docker" {
+  alias = "kreuzwerker"
+}
+
 resource "docker_image" "policy_service" {
   name = var.policy_service_image
   build {
@@ -7,10 +20,17 @@ resource "docker_image" "policy_service" {
 }
 
 resource "docker_container" "policy_service" {
-  name  = var.policy_service_image
-  image = docker_image.policy_service.latest
-
-  networks_advanced {
-    name = var.app_network_name
+  image   = docker_image.policy_service.name
+  name    = "policy-service"
+  restart = "always"
+  ports {
+    internal = 9200
+    external = 9200
   }
+  depends_on = [
+    docker_container.mongo,
+    docker_container.message_broker,
+    docker_container.auth_service,
+    docker_container.logger_service
+  ]
 }

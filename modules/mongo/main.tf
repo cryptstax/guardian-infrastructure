@@ -1,29 +1,26 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2" # Replace this with the desired version
+    }
+  }
+}
+
+provider "docker" {
+  alias = "kreuzwerker"
+}
+
+resource "docker_image" "mongo" {
+  name = var.mongo_image
+}
+
 resource "docker_container" "mongo" {
-  image   = "mongo:6.0.3"
+  image   = docker_image.mongo.name
   name    = "mongo"
+  command = var.mongo_command
   restart = "always"
-  expose  = [27017]
-  command = ["--setParameter", "allowDiskUseByDefault=true"]
-  networks_advanced {
-    name = docker_network.app_network.name
+  expose {
+    internal = var.mongo_expose_port
   }
-}
-
-resource "docker_volume" "mongo_data" {
-  name = "mongo_data"
-}
-
-resource "docker_container" "mongo_express" {
-  image  = "mongo-express:1.0.0-alpha.4"
-  name   = "mongo-express"
-  expose = [8081]
-  environment = {
-    ME_CONFIG_MONGODB_SERVER = var.ME_CONFIG_MONGODB_SERVER
-    ME_CONFIG_MONGODB_PORT   = var.ME_CONFIG_MONGODB_PORT
-    ME_CONFIG_SITE_BASEURL   = var.ME_CONFIG_SITE_BASEURL
-  }
-  networks_advanced {
-    name = docker_network.app_network.name
-  }
-  depends_on = [docker_container.mongo]
 }

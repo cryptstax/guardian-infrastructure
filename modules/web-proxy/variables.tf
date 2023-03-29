@@ -1,14 +1,27 @@
 variable "web_proxy_image" {
   type        = string
-  description = "Docker image for the web proxy service"
+  description = "The Docker image for the web-proxy service."
+  default     = "web-proxy"
 }
 
-variable "web_proxy_build_context" {
+variable "web_proxy_context" {
   type        = string
-  description = "Build context for the web proxy service"
+  description = "The build context for the web-proxy service."
 }
 
-variable "web_proxy_port" {
+variable "web_proxy_dockerfile" {
   type        = string
-  description = "Port for the web proxy service"
+  description = "The Dockerfile for the web-proxy service."
+}
+
+variable "web_proxy_internal_port" {
+  type        = number
+  description = "The internal port for the web-proxy service."
+  default     = 80
+}
+
+variable "web_proxy_external_port" {
+  type        = number
+  description = "The external port for the web-proxy service."
+  default     = 3000
 }

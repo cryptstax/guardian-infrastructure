@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2" # Replace this with the desired version
+    }
+  }
+}
+
+provider "docker" {
+  alias = "kreuzwerker"
+}
+
 resource "docker_image" "api_docs" {
   name = var.api_docs_image
   build {
@@ -7,13 +20,11 @@ resource "docker_image" "api_docs" {
 }
 
 resource "docker_container" "api_docs" {
-  name  = var.api_docs_image
-  image = docker_image.api_docs.latest
+  image   = docker_image.api_docs.name
+  name    = "api-docs"
+  restart = "always"
   ports {
-    internal = 3001
-    external = 3001
-  }
-  networks_advanced {
-    name = var.app_network_name
+    internal = var.api_docs_expose_port
+    external = var.api_docs_expose_port
   }
 }

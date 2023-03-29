@@ -1,31 +1,31 @@
-# mongo-express/main.tf
-
-variable "ME_CONFIG_MONGODB_SERVER" {
-  type    = string
-  default = "mongo"
-}
-
-variable "ME_CONFIG_MONGODB_PORT" {
-  type    = string
-  default = "27017"
-}
-
-variable "ME_CONFIG_SITE_BASEURL" {
-  type    = string
-  default = "/mongo-admin"
-}
-
-resource "docker_container" "mongo_express" {
-  image  = "mongo-express:1.0.0-alpha.4"
-  name   = "mongo-express"
-  expose = [8081]
-  environment = {
-    ME_CONFIG_MONGODB_SERVER = var.ME_CONFIG_MONGODB_SERVER
-    ME_CONFIG_MONGODB_PORT   = var.ME_CONFIG_MONGODB_PORT
-    ME_CONFIG_SITE_BASEURL   = var.ME_CONFIG_SITE_BASEURL
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2" # Replace this with the desired version
+    }
   }
-  networks_advanced {
-    name = var.app_network_name
+}
+
+provider "docker" {
+  alias = "kreuzwerker"
+}
+
+resource "docker_image" "mongo-express" {
+  name = var.mongo_express_image
+}
+
+resource "docker_container" "mongo-express" {
+  image   = docker_image.mongo-express.name
+  name    = "mongo-express"
+  restart = "always"
+  expose {
+    internal = var.mongo_express_expose_port
   }
-  depends_on = [var.mongo_container_id]
+  env = [
+    "ME_CONFIG_MONGODB_SERVER=${var.mongo_container_name}",
+    "ME_CONFIG_MONGODB_PORT=${var.mongo_expose_port}",
+    "ME_CONFIG_SITE_BASEURL=${var.mongo_express_baseurl}"
+  ]
+  depends_on = [docker_container.mongo]
 }

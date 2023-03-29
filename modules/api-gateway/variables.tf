@@ -1,24 +1,19 @@
+variable "api_gateway_image" {
+  description = "Docker image for the api-gateway service"
+  type        = string
+}
+
 variable "api_gateway_build_context" {
-  description = "The build context for the api-gateway."
-  default     = "."
+  description = "Build context for the api-gateway service"
+  type        = string
 }
 
 variable "api_gateway_dockerfile" {
-  description = "The Dockerfile for the api-gateway."
-  default     = "./guardian/api-gateway/Dockerfile"
+  description = "Dockerfile for the api-gateway service"
+  type        = string
 }
 
-variable "api_gateway_image" {
-  description = "The image name for the api-gateway."
-  default     = "api-gateway"
-}
-
-variable "api_gateway_exposed_port" {
-  description = "The exposed port for the api-gateway."
-  default     = 3002
-}
-
-variable "app_network_name" {
-  description = "The name of the app network."
-  default     = "app-network"
+variable "api_gateway_expose_port" {
+  description = "Port to expose the api-gateway service"
+  type        = number
 }

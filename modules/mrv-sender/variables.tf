@@ -1,5 +1,14 @@
 variable "mrv_sender_image" {
+  description = "Docker image for the mrv-sender service"
   type        = string
-  description = "Docker image for the MRV Sender."
-  default     = "mrv-sender:latest"
+}
+
+variable "mrv_sender_build_context" {
+  description = "Build context path for the mrv-sender service"
+  type        = string
+}
+
+variable "mrv_sender_dockerfile" {
+  description = "Dockerfile path for the mrv-sender service"
+  type        = string
 }

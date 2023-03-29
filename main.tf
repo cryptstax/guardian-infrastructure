@@ -1,155 +1,208 @@
-provider "docker" {}
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2"
+    }
+  }
+}
 
-resource "docker_network" "app_network" {
-  name = "app_network"
+provider "docker" {
+  alias = "kreuzwerker"
+  host  = "unix:///var/run/docker.sock"
+}
+
+# resource "docker_network" "app_network" {
+#   name = "app_network"
+# }
+
+module "api-docs" {
+  source = "./modules/api-docs"
+
+  api_docs_image         = "api-docs"
+  api_docs_build_context = "."
+  api_docs_dockerfile    = "./guardian/api-docs/Dockerfile"
+  api_docs_expose_port   = 3001
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "api-gateway" {
+  source = "./modules/api-gateway"
+
+  api_gateway_image         = "api-gateway"
+  api_gateway_build_context = "."
+  api_gateway_dockerfile    = "./guardian/api-gateway/Dockerfile"
+  api_gateway_expose_port   = 3002
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "auth-service" {
+  source = "./modules/auth-service"
+
+  auth_service_image         = "auth-service"
+  auth_service_build_context = "."
+  auth_service_dockerfile    = "./guardian/auth-service/Dockerfile"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "guardian-service" {
+  source = "./modules/guardian-service"
+
+  guardian_service_image         = "guardian-service"
+  guardian_service_build_context = "."
+  guardian_service_dockerfile    = "./guardian/guardian-service/Dockerfile"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "ipfs-node" {
+  source = "./modules/ipfs-node"
+
+  ipfs_node_image = "ipfs/kubo:v0.18.1"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "logger-service" {
+  source = "./modules/logger-service"
+
+  logger_service_image         = "logger-service"
+  logger_service_build_context = "."
+  logger_service_dockerfile    = "./guardian/logger-service/Dockerfile"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "message-broker" {
+  source = "./modules/message-broker"
+
+  message_broker_image = "nats:2.9.8"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
 }
 
 module "mongo" {
   source = "./modules/mongo"
+
+  mongo_image       = "mongo:6.0.3"
+  mongo_command     = "--setParameter allowDiskUseByDefault=true"
+  mongo_expose_port = 27017
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
 }
 
-module "mongo_express" {
+module "mongo-express" {
   source = "./modules/mongo-express"
 
-  depends_on = [
-    module.mongo
-  ]
-}
+  mongo_express_image       = "mongo-express:1.0.0-alpha.4"
+  mongo_expose_port         = 27017
+  mongo_container_name      = module.mongo.mongo_container_name
+  mongo_express_expose_port = 8081
+  mongo_express_baseurl     = "/mongo-admin"
 
-module "ipfs_node" {
-  source = "./modules/ipfs-node"
-
-  app_network_name    = var.docker_network.app.name
-  ipfs_staging_volume = "your_staging_volume_path"
-  ipfs_data_volume    = "your_data_volume_path"
-}
-
-module "api_docs" {
-  source = "./modules/api-docs"
-
-  app_network_name       = var.docker_network.app_network.name
-  api_docs_build_context = "."                    # assuming the build context is the root folder
-  api_docs_dockerfile    = "./guardian/api-docs/Dockerfile" # assuming the Dockerfile is in the api-docs folder
-}
-
-module "message_broker" {
-  source = "./modules/message-broker"
-
-  app_network_name           = docker_network.app.name
-  message_broker_image       = "nats:2.9.8"
-  message_broker_http_port   = "8222"
-  message_broker_expose_port = "4222"
-}
-
-module "vault" {
-  source = "./modules/vault"
-
-}
-
-module "logger_service" {
-  source = "./modules/logger-service"
-
-  depends_on = [
-    module.message-broker
-  ]
-}
-
-module "worker_service_1" {
-  source = "./modules/worker-service"
-
-  depends_on = [
-    module.ipfs-node,
-    module.auth-service
-  ]
-
-  environment = {
-    SERVICE_CHANNEL = "worker.1"
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
   }
 }
 
-module "worker_service_2" {
-  source = "./modules/worker-service"
-
-  depends_on = [
-    module.ipfs-node,
-    module.auth-service
-  ]
-  environment = {
-    SERVICE_CHANNEL = "worker.2"
-  }
-}
-
-module "auth_service" {
-  source = "./modules/auth-service"
-
-  depends_on = [
-    module.mongo,
-    module.vault,
-    module.message-broker,
-    module.logger-service
-  ]
-}
-
-module "api_gateway" {
-  source = "./modules/api-gateway"
-
-  depends_on = [
-    module.mongo,
-    module.message-broker,
-    module.guardian-service,
-    module.auth-service,
-    module.logger-service
-  ]
-}
-
-module "policy_service" {
-  source = "./modules/policy-service"
-  depends_on = [
-    module.mongo,
-    module.message-broker,
-    module.auth-service,
-    module.logger-service
-  ]
-}
-
-module "guardian_service" {
-  source = "./modules/guardian-service"
-
-  depends_on = [
-    module.mongo,
-    module.message-broker,
-    module.auth-service,
-    module.logger-service,
-    module.worker-service-1,
-    module.worker-service-2,
-    module.policy-service
-  ]
-}
-
-module "mrv_sender" {
+module "mrv-sender" {
   source = "./modules/mrv-sender"
+
+  mrv_sender_image         = "mrv-sender"
+  mrv_sender_build_context = "."
+  mrv_sender_dockerfile    = "./guardian/mrv-sender/Dockerfile"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "policy-service" {
+  source = "./modules/policy-service"
+
+  policy_service_image         = "policy-service"
+  policy_service_build_context = "."
+  policy_service_dockerfile    = "./guardian/policy-service/Dockerfile"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
 }
 
 module "topic_viewer" {
   source = "./modules/topic-viewer"
 
-  topic_viewer_image         = "topic-viewer-image:latest"
-  topic_viewer_build_context = "./path/to/build/context"
+  topic_viewer_image         = "topic-viewer"
+  topic_viewer_build_context = "."
+  topic_viewer_dockerfile    = "./guardian/topic-viewer/Dockerfile"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
 }
 
-module "web_proxy" {
+module "vault" {
+  source = "./modules/vault"
+
+  vault_image             = "vault:1.12.2"
+  vault_dev_root_token_id = "1234"
+  vault_server            = "http://0.0.0.0:8200"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "web-proxy" {
   source = "./modules/web-proxy"
 
-  depends_on = [
-    module.guardian-service,
-    module.auth-service,
-    module.api-gateway,
-    module.api-docs,
-    module.mrv-sender,
-    module.mongo-express
-  ]
+  web_proxy_context    = "."
+  web_proxy_dockerfile = "./web-proxy/Dockerfile"
 
-  web_proxy_image         = "your_web_proxy_image"
-  web_proxy_build_context = "your_web_proxy_build_context"
-  web_proxy_port          = "your_web_proxy_port"
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "worker-service-1" {
+  source = "./modules/worker-service"
+
+  worker_service_context    = "."
+  worker_service_dockerfile = "./guardian/worker-service/Dockerfile"
+  service_channel           = "worker.1"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
+}
+
+module "worker-service-2" {
+  source = "./modules/worker-service"
+
+  worker_service_context    = "."
+  worker_service_dockerfile = "./guardian/worker-service/Dockerfile"
+  service_channel           = "worker.2"
+
+  providers = {
+    docker.kreuzwerker = docker.kreuzwerker
+  }
 }

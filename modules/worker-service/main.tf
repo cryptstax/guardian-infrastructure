@@ -1,33 +1,35 @@
-resource "docker_image" "worker_service" {
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2" # Replace this with the desired version
+    }
+  }
+}
+
+provider "docker" {
+  alias = "kreuzwerker"
+}
+
+resource "docker_image" "worker-service" {
   name = var.worker_service_image
   build {
-    context    = var.worker_service_build_context
+    context    = var.worker_service_context
     dockerfile = var.worker_service_dockerfile
   }
 }
 
-resource "docker_container" "worker_service_1" {
-  name  = "${var.worker_service_image}-1"
-  image = docker_image.worker_service.latest
+resource "docker_container" "worker-service" {
+  image   = docker_image.worker-service.name
+  name    = "${var.service_channel}-worker-service"
+  restart = "always"
 
   env = [
-    "SERVICE_CHANNEL=${var.worker_service_1_channel}"
+    "SERVICE_CHANNEL=${var.service_channel}",
   ]
 
-  networks_advanced {
-    name = var.app_network_name
-  }
-}
-
-resource "docker_container" "worker_service_2" {
-  name  = "${var.worker_service_image}-2"
-  image = docker_image.worker_service.latest
-
-  env = [
-    "SERVICE_CHANNEL=${var.worker_service_2_channel}"
+  depends_on = [
+    docker_container.auth_service,
+    docker_container.ipfs_node
   ]
-
-  networks_advanced {
-    name = var.app_network_name
-  }
 }

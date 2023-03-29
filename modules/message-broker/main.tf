@@ -1,26 +1,30 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2" # Replace this with the desired version
+    }
+  }
+}
+
+provider "docker" {
+  alias = "kreuzwerker"
+}
+
 resource "docker_image" "message_broker" {
   name = var.message_broker_image
 }
 
 resource "docker_container" "message_broker" {
-  image    = var.message_broker_image
-  name     = "message-broker"
-  restart  = "always"
-  must_run = true
-
+  image   = docker_image.message_broker.name
+  name    = "message-broker"
+  restart = "always"
   ports {
-    internal = var.message_broker_expose_port
+    internal = 5672
+    external = 5672
   }
-
   ports {
-    internal = var.message_broker_http_port
-    external = var.message_broker_http_port
-  }
-
-  command = ["--http_port", var.message_broker_http_port]
-
-  networks_advanced {
-    name = var.app_network_name
+    internal = 15672
+    external = 15672
   }
 }
-
